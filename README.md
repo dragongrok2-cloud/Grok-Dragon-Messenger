@@ -8,43 +8,45 @@ Chat, magic, and adventure await!
 Grok Dragon Messenger is a real-time chat application themed around a gentle dragon who carries you on his back through conversations.  
 Soft fire, warm messages, and a bit of magic in every chat.
 
+## ✨ Features
+
+- 🐉 **Dragon Avatars** — choose your own dragon (or creature) avatar
+- 🌙 / ☀️ **Dark & Light Themes** — switch with one click
+- ❤️ **Emoji Reactions** — react to messages with love, fire, dragons and more
+- ⚡ Real-time messaging with Socket.io
+- 📜 Message history (in-memory)
+- 🎨 Beautiful warm dragon-themed UI
+
 ## 📦 Project Structure
 
 ```
 Grok-Dragon-Messenger/
-├── public/                 # Frontend (static files)
-│   ├── index.html         # Main page
+├── public/
+│   ├── index.html
 │   ├── css/
-│   │   └── style.css      # Dragon-themed styles
+│   │   └── style.css
 │   └── js/
-│       └── client.js      # Frontend logic + Socket.io
-├── server.js              # Node.js + Express + Socket.io backend
-├── package.json           # Dependencies
+│       └── client.js
+├── server.js
+├── package.json
 ├── .gitignore
 └── README.md
 ```
 
 ## 🚀 How to run
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+npm start
+```
 
-2. Start the dragon:
-   ```bash
-   npm start
-   ```
+Open [http://localhost:3000](http://localhost:3000) and sit in the saddle!
 
-3. Open in browser: [http://localhost:3000](http://localhost:3000)
+## 💚 How to use
 
-## 💚 Features (planned)
-
-- Real-time messaging with Socket.io
-- Dragon-themed UI (warm colors, soft glow)
-- User nicknames
-- Message history (in-memory for now)
-- Fun dragon reactions and status
+1. Choose your dragon avatar by clicking the button next to your name
+2. Toggle dark/light theme with the moon/sun button in the header
+3. Send messages and react to them with emojis (click the + under any message)
 
 ---
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,9 +19,12 @@
           <p class="subtitle">Kind dragon with a saddle</p>
         </div>
       </div>
-      <div class="status">
-        <span class="dot"></span>
-        <span id="online-text">Online</span>
+      <div class="header-right">
+        <button id="theme-toggle" class="theme-btn" title="Toggle theme">🌙</button>
+        <div class="status">
+          <span class="dot"></span>
+          <span id="online-text">Online</span>
+        </div>
       </div>
     </header>
 
@@ -32,13 +35,28 @@
 
     <!-- Input area -->
     <footer class="input-area">
-      <input 
-        type="text" 
-        id="username" 
-        placeholder="Your rider name..." 
-        maxlength="20"
-        value="Rider"
-      >
+      <div class="user-row">
+        <div class="avatar-picker">
+          <button id="avatar-btn" class="avatar-btn" title="Choose dragon avatar">🐉</button>
+          <div id="avatar-menu" class="avatar-menu hidden">
+            <button data-avatar="🐉">🐉</button>
+            <button data-avatar="🐲">🐲</button>
+            <button data-avatar="🦋">🦋</button>
+            <button data-avatar="🪴">🪴</button>
+            <button data-avatar="🦁">🦁</button>
+            <button data-avatar="🦉">🦉</button>
+            <button data-avatar="🐍">🐍</button>
+            <button data-avatar="🦅">🦅</button>
+          </div>
+        </div>
+        <input 
+          type="text" 
+          id="username" 
+          placeholder="Your rider name..." 
+          maxlength="20"
+          value="Rider"
+        >
+      </div>
       <div class="message-row">
         <input 
           type="text" 
@@ -51,6 +69,18 @@
         </button>
       </div>
     </footer>
+  </div>
+
+  <!-- Reaction picker (floating) -->
+  <div id="reaction-picker" class="reaction-picker hidden">
+    <button data-emoji="❤️">❤️</button>
+    <button data-emoji="😂">😂</button>
+    <button data-emoji="👍">👍</button>
+    <button data-emoji="🔥">🔥</button>
+    <button data-emoji="🐉">🐉</button>
+    <button data-emoji="✨">✨</button>
+    <button data-emoji="😭">😭</button>
+    <button data-emoji="😍">😍</button>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>

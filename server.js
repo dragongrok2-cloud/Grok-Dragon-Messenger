@@ -9,36 +9,59 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
-// Serve static files from public folder
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// In-memory message history (simple version)
+// In-memory storage
 const messageHistory = [];
 const MAX_HISTORY = 100;
 
 io.on('connection', (socket) => {
   console.log('🐉 A new rider joined the dragon!', socket.id);
 
-  // Send recent history to the new user
+  // Send history
   socket.emit('history', messageHistory);
 
-  // When someone sends a message
+  // New message
   socket.on('chat message', (data) => {
     const message = {
-      id: Date.now(),
+      id: Date.now().toString() + Math.random().toString(36).slice(2, 7),
       username: data.username || 'Anonymous Rider',
       text: data.text,
-      time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+      avatar: data.avatar || '🐉',
+      time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+      reactions: {} // emoji -> [usernames]
     };
 
-    // Save to history
     messageHistory.push(message);
     if (messageHistory.length > MAX_HISTORY) {
       messageHistory.shift();
     }
 
-    // Broadcast to everyone
     io.emit('chat message', message);
+  });
+
+  // Toggle reaction
+  socket.on('toggle reaction', (data) => {
+    const { messageId, emoji, username } = data;
+    const msg = messageHistory.find(m => m.id === messageId);
+    if (!msg) return;
+
+    if (!msg.reactions[emoji]) {
+      msg.reactions[emoji] = [];
+    }
+
+    const index = msg.reactions[emoji].indexOf(username);
+    if (index === -1) {
+      msg.reactions[emoji].push(username);
+    } else {
+      msg.reactions[emoji].splice(index, 1);
+      if (msg.reactions[emoji].length === 0) {
+        delete msg.reactions[emoji];
+      }
+    }
+
+    io.emit('message updated', msg);
   });
 
   socket.on('disconnect', () => {
