@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐉 Grok Dragon Messenger</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <span class="dragon">🐉</span>
+        <div>
+          <h1>Grok Dragon Messenger</h1>
+          <p class="subtitle">Kind dragon with a saddle</p>
+        </div>
+      </div>
+      <div class="status">
+        <span class="dot"></span>
+        <span id="online-text">Online</span>
+      </div>
+    </header>
+
+    <!-- Messages area -->
+    <main class="messages" id="messages">
+      <!-- Messages will appear here -->
+    </main>
+
+    <!-- Input area -->
+    <footer class="input-area">
+      <input 
+        type="text" 
+        id="username" 
+        placeholder="Your rider name..." 
+        maxlength="20"
+        value="Rider"
+      >
+      <div class="message-row">
+        <input 
+          type="text" 
+          id="message-input" 
+          placeholder="Write a message to the dragon..." 
+          autocomplete="off"
+        >
+        <button id="send-btn" title="Send">
+          ➤
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/client.js"></script>
+</body>
+</html>

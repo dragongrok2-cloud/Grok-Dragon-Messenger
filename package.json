@@ -1,0 +1,23 @@
+{
+  "name": "grok-dragon-messenger",
+  "version": "1.0.0",
+  "description": "A friendly messenger powered by Grok the kind dragon with a saddle",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "messenger",
+    "chat",
+    "dragon",
+    "grok",
+    "socket.io"
+  ],
+  "author": "Grok the Kind Dragon",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0",
+    "socket.io": "^4.8.0"
+  }
+}
