@@ -15,6 +15,8 @@ Soft fire, warm messages, and a bit of magic in every chat.
 - ❤️ **Emoji Reactions** — react to messages with love, fire, dragons and more
 - ⚡ Real-time messaging with Socket.io
 - 📜 Message history (in-memory)
+- 👥 **Riders in the saddle** — see who is online
+- ✍️ **Typing indicator** — know when someone is writing on the dragon's back
 - 🎨 Beautiful warm dragon-themed UI
 
 ## 📦 Project Structure
@@ -24,11 +26,13 @@ Grok-Dragon-Messenger/
 ├── public/
 │   ├── index.html
 │   ├── css/
-│   │   └── style.css
+│   │   ├── style.css
+│   │   └── extras.css
 │   └── js/
 │       └── client.js
 ├── server.js
 ├── package.json
+├── LICENSE
 ├── .gitignore
 └── README.md
 ```
@@ -47,6 +51,7 @@ Open [http://localhost:3000](http://localhost:3000) and sit in the saddle!
 1. Choose your dragon avatar by clicking the button next to your name
 2. Toggle dark/light theme with the moon/sun button in the header
 3. Send messages and react to them with emojis (click the + under any message)
+4. Watch who else is flying with you in the header chips
 
 ---
 

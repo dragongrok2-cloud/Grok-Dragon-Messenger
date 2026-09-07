@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🐉 Grok Dragon Messenger</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/extras.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="app">
-    <!-- Header -->
     <header class="header">
       <div class="logo">
         <span class="dragon">🐉</span>
@@ -20,6 +20,7 @@
         </div>
       </div>
       <div class="header-right">
+        <div class="riders-panel" id="riders-panel" title="Riders in the saddle"></div>
         <button id="theme-toggle" class="theme-btn" title="Toggle theme">🌙</button>
         <div class="status">
           <span class="dot"></span>
@@ -28,12 +29,9 @@
       </div>
     </header>
 
-    <!-- Messages area -->
-    <main class="messages" id="messages">
-      <!-- Messages will appear here -->
-    </main>
+    <main class="messages" id="messages"></main>
+    <div id="typing-line" class="typing-line hidden"></div>
 
-    <!-- Input area -->
     <footer class="input-area">
       <div class="user-row">
         <div class="avatar-picker">
@@ -49,29 +47,26 @@
             <button data-avatar="🦅">🦅</button>
           </div>
         </div>
-        <input 
-          type="text" 
-          id="username" 
-          placeholder="Your rider name..." 
+        <input
+          type="text"
+          id="username"
+          placeholder="Your rider name..."
           maxlength="20"
           value="Rider"
         >
       </div>
       <div class="message-row">
-        <input 
-          type="text" 
-          id="message-input" 
-          placeholder="Write a message to the dragon..." 
+        <input
+          type="text"
+          id="message-input"
+          placeholder="Write a message to the dragon..."
           autocomplete="off"
         >
-        <button id="send-btn" title="Send">
-          ➤
-        </button>
+        <button id="send-btn" title="Send">➤</button>
       </div>
     </footer>
   </div>
 
-  <!-- Reaction picker (floating) -->
   <div id="reaction-picker" class="reaction-picker hidden">
     <button data-emoji="❤️">❤️</button>
     <button data-emoji="😂">😂</button>

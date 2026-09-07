@@ -1,0 +1,21 @@
+.riders-panel {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 280px;
+  justify-content: flex-end;
+}
+.rider-chip {
+  font-size: 13px;
+  background: color-mix(in srgb, var(--bubble-other, #3a2a1a) 80%, transparent);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+.typing-line {
+  font-size: 13px;
+  opacity: 0.75;
+  padding: 4px 16px 8px;
+  min-height: 1.4em;
+}
+.typing-line.hidden { display: none; }

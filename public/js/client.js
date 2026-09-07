@@ -8,18 +8,20 @@ const themeToggle = document.getElementById('theme-toggle');
 const avatarBtn = document.getElementById('avatar-btn');
 const avatarMenu = document.getElementById('avatar-menu');
 const reactionPicker = document.getElementById('reaction-picker');
+const ridersPanel = document.getElementById('riders-panel');
+const typingLine = document.getElementById('typing-line');
+const onlineText = document.getElementById('online-text');
 
-// Current state
 let currentAvatar = localStorage.getItem('dragonAvatar') || '🐉';
 let currentTheme = localStorage.getItem('dragonTheme') || 'dark';
-let activeMessageId = null; // for reactions
+let activeMessageId = null;
+let typingTimeout = null;
+const typingRiders = new Map();
 
-// Apply saved theme
 document.documentElement.setAttribute('data-theme', currentTheme);
 themeToggle.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
 avatarBtn.textContent = currentAvatar;
 
-// ========== THEME ==========
 themeToggle.addEventListener('click', () => {
   currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', currentTheme);
@@ -27,7 +29,6 @@ themeToggle.addEventListener('click', () => {
   themeToggle.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
 });
 
-// ========== AVATAR ==========
 avatarBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   avatarMenu.classList.toggle('hidden');
@@ -39,16 +40,22 @@ avatarMenu.querySelectorAll('button').forEach(btn => {
     avatarBtn.textContent = currentAvatar;
     localStorage.setItem('dragonAvatar', currentAvatar);
     avatarMenu.classList.add('hidden');
+    emitIdentify();
   });
 });
 
-// Close menus on outside click
+usernameInput.addEventListener('change', emitIdentify);
+usernameInput.addEventListener('blur', emitIdentify);
+
+function emitIdentify() {
+  socket.emit('identify', { username: getMyName(), avatar: currentAvatar });
+}
+
 document.addEventListener('click', () => {
   avatarMenu.classList.add('hidden');
   reactionPicker.classList.add('hidden');
 });
 
-// ========== WELCOME ==========
 function addWelcome() {
   const welcome = document.createElement('div');
   welcome.className = 'welcome';
@@ -57,12 +64,9 @@ function addWelcome() {
 }
 addWelcome();
 
-// ========== RENDER MESSAGE ==========
 function addMessage(msg, isOwn = false) {
-  // Check if already exists (for updates)
   let wrapper = document.querySelector(`[data-id="${msg.id}"]`);
   if (wrapper) {
-    // Update reactions only
     updateReactions(wrapper, msg);
     return;
   }
@@ -87,7 +91,6 @@ function addMessage(msg, isOwn = false) {
     <div class="reactions" data-msg-id="${msg.id}"></div>
   `;
 
-  // Add reaction button
   const addBtn = document.createElement('button');
   addBtn.className = 'add-reaction-btn';
   addBtn.textContent = '+';
@@ -98,7 +101,6 @@ function addMessage(msg, isOwn = false) {
   });
 
   messageDiv.querySelector('.reactions').appendChild(addBtn);
-
   wrapper.appendChild(avatar);
   wrapper.appendChild(messageDiv);
   messagesEl.appendChild(wrapper);
@@ -110,8 +112,6 @@ function addMessage(msg, isOwn = false) {
 function updateReactions(wrapper, msg) {
   const reactionsEl = wrapper.querySelector('.reactions');
   if (!reactionsEl) return;
-
-  // Keep the + button
   const addBtn = reactionsEl.querySelector('.add-reaction-btn');
   reactionsEl.innerHTML = '';
 
@@ -129,7 +129,6 @@ function updateReactions(wrapper, msg) {
       reactionsEl.appendChild(btn);
     });
   }
-
   if (addBtn) reactionsEl.appendChild(addBtn);
 }
 
@@ -137,7 +136,6 @@ function getMyName() {
   return usernameInput.value.trim() || 'Rider';
 }
 
-// ========== REACTIONS ==========
 function showReactionPicker(e, msgId) {
   activeMessageId = msgId;
   const rect = e.target.getBoundingClientRect();
@@ -150,9 +148,7 @@ function showReactionPicker(e, msgId) {
 reactionPicker.querySelectorAll('button').forEach(btn => {
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (activeMessageId) {
-      toggleReaction(activeMessageId, btn.dataset.emoji);
-    }
+    if (activeMessageId) toggleReaction(activeMessageId, btn.dataset.emoji);
     reactionPicker.classList.add('hidden');
   });
 });
@@ -165,18 +161,15 @@ function toggleReaction(msgId, emoji) {
   });
 }
 
-// ========== SEND MESSAGE ==========
 function sendMessage() {
   const text = messageInput.value.trim();
-  const username = getMyName();
-
   if (!text) return;
-
   socket.emit('chat message', {
-    username,
+    username: getMyName(),
     text,
     avatar: currentAvatar
   });
+  socket.emit('typing', { username: getMyName(), avatar: currentAvatar, isTyping: false });
   messageInput.value = '';
   messageInput.focus();
 }
@@ -186,25 +179,56 @@ messageInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') sendMessage();
 });
 
-// ========== SOCKET EVENTS ==========
+messageInput.addEventListener('input', () => {
+  socket.emit('typing', { username: getMyName(), avatar: currentAvatar, isTyping: true });
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(() => {
+    socket.emit('typing', { username: getMyName(), avatar: currentAvatar, isTyping: false });
+  }, 1200);
+});
+
+socket.on('connect', emitIdentify);
+
 socket.on('history', (history) => {
-  history.forEach(msg => {
-    const isOwn = msg.username === getMyName();
-    addMessage(msg, isOwn);
-  });
+  history.forEach(msg => addMessage(msg, msg.username === getMyName()));
 });
 
 socket.on('chat message', (msg) => {
-  const isOwn = msg.username === getMyName();
-  addMessage(msg, isOwn);
+  addMessage(msg, msg.username === getMyName());
 });
 
 socket.on('message updated', (msg) => {
-  const isOwn = msg.username === getMyName();
-  addMessage(msg, isOwn); // will update existing
+  addMessage(msg, msg.username === getMyName());
 });
 
-// Escape HTML
+socket.on('riders', (list) => {
+  ridersPanel.innerHTML = '';
+  (list || []).forEach(r => {
+    const chip = document.createElement('span');
+    chip.className = 'rider-chip';
+    chip.textContent = `${r.avatar || '🐉'} ${r.username || 'Rider'}`;
+    ridersPanel.appendChild(chip);
+  });
+  if (onlineText) onlineText.textContent = `${(list || []).length} in saddle`;
+});
+
+socket.on('typing', (data) => {
+  if (!data) return;
+  if (data.isTyping) {
+    typingRiders.set(data.username, data.avatar);
+  } else {
+    typingRiders.delete(data.username);
+  }
+  if (typingRiders.size === 0) {
+    typingLine.classList.add('hidden');
+    typingLine.textContent = '';
+  } else {
+    const names = Array.from(typingRiders.keys()).join(', ');
+    typingLine.classList.remove('hidden');
+    typingLine.textContent = `🐉 ${names} печатает на спине дракона...`;
+  }
+});
+
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
