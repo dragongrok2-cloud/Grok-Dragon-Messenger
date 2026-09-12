@@ -11,32 +11,64 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const messageHistory = [];
-const MAX_HISTORY = 100;
-const riders = new Map(); // socket.id -> { username, avatar }
+const ROOMS = {
+  saddle: { id: 'saddle', name: 'Седло', emoji: '🛋️' },
+  sky: { id: 'sky', name: 'Небеса', emoji: '☁️' },
+  cave: { id: 'cave', name: 'Пещера', emoji: '🌑' }
+};
 
-function ridersList() {
-  return Array.from(riders.values());
+const histories = {
+  saddle: [],
+  sky: [],
+  cave: []
+};
+const MAX_HISTORY = 100;
+const riders = new Map(); // socket.id -> { username, avatar, room }
+
+function ridersIn(room) {
+  return Array.from(riders.values()).filter(r => r.room === room);
 }
 
 io.on('connection', (socket) => {
   console.log('🐉 A new rider joined the dragon!', socket.id);
 
-  riders.set(socket.id, { username: 'Rider', avatar: '🐉' });
-  io.emit('riders', ridersList());
-
-  socket.emit('history', messageHistory);
+  riders.set(socket.id, { username: 'Rider', avatar: '🐉', room: 'saddle' });
+  socket.join('saddle');
+  socket.emit('history', histories.saddle);
+  io.to('saddle').emit('riders', ridersIn('saddle'));
+  socket.emit('rooms', Object.values(ROOMS));
+  socket.emit('room', 'saddle');
 
   socket.on('identify', (data) => {
+    const prev = riders.get(socket.id) || { room: 'saddle' };
     riders.set(socket.id, {
       username: (data && data.username) || 'Rider',
-      avatar: (data && data.avatar) || '🐉'
+      avatar: (data && data.avatar) || '🐉',
+      room: prev.room || 'saddle'
     });
-    io.emit('riders', ridersList());
+    const room = riders.get(socket.id).room;
+    io.to(room).emit('riders', ridersIn(room));
+  });
+
+  socket.on('join room', (roomId) => {
+    if (!ROOMS[roomId]) return;
+    const prev = riders.get(socket.id) || { username: 'Rider', avatar: '🐉', room: 'saddle' };
+    if (prev.room === roomId) return;
+
+    socket.leave(prev.room);
+    io.to(prev.room).emit('riders', ridersIn(prev.room));
+
+    riders.set(socket.id, { ...prev, room: roomId });
+    socket.join(roomId);
+    socket.emit('history', histories[roomId] || []);
+    socket.emit('room', roomId);
+    io.to(roomId).emit('riders', ridersIn(roomId));
   });
 
   socket.on('typing', (data) => {
-    socket.broadcast.emit('typing', {
+    const rider = riders.get(socket.id);
+    const room = (rider && rider.room) || 'saddle';
+    socket.to(room).emit('typing', {
       username: (data && data.username) || 'Rider',
       avatar: (data && data.avatar) || '🐉',
       isTyping: !!(data && data.isTyping)
@@ -44,6 +76,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('chat message', (data) => {
+    const rider = riders.get(socket.id);
+    const room = (rider && rider.room) || 'saddle';
     const message = {
       id: Date.now().toString() + Math.random().toString(36).slice(2, 7),
       username: data.username || 'Anonymous Rider',
@@ -51,23 +85,26 @@ io.on('connection', (socket) => {
       avatar: data.avatar || '🐉',
       time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
       reactions: {},
-      isSticker: !!data.isSticker
+      isSticker: !!data.isSticker,
+      room
     };
 
-    riders.set(socket.id, { username: message.username, avatar: message.avatar });
-    io.emit('riders', ridersList());
+    riders.set(socket.id, { username: message.username, avatar: message.avatar, room });
+    io.to(room).emit('riders', ridersIn(room));
 
-    messageHistory.push(message);
-    if (messageHistory.length > MAX_HISTORY) {
-      messageHistory.shift();
-    }
+    histories[room] = histories[room] || [];
+    histories[room].push(message);
+    if (histories[room].length > MAX_HISTORY) histories[room].shift();
 
-    io.emit('chat message', message);
+    io.to(room).emit('chat message', message);
   });
 
   socket.on('toggle reaction', (data) => {
     const { messageId, emoji, username } = data;
-    const msg = messageHistory.find(m => m.id === messageId);
+    const rider = riders.get(socket.id);
+    const room = (rider && rider.room) || 'saddle';
+    const list = histories[room] || [];
+    const msg = list.find(m => m.id === messageId);
     if (!msg) return;
 
     if (!msg.reactions[emoji]) {
@@ -84,12 +121,14 @@ io.on('connection', (socket) => {
       }
     }
 
-    io.emit('message updated', msg);
+    io.to(room).emit('message updated', msg);
   });
 
   socket.on('disconnect', () => {
+    const prev = riders.get(socket.id);
+    const room = prev && prev.room;
     riders.delete(socket.id);
-    io.emit('riders', ridersList());
+    if (room) io.to(room).emit('riders', ridersIn(room));
     console.log('🐉 A rider left the saddle...', socket.id);
   });
 });
