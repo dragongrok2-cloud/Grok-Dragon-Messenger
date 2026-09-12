@@ -13,10 +13,12 @@ Soft fire, warm messages, and a bit of magic in every chat.
 - 🐉 **Dragon Avatars** — choose your own dragon (or creature) avatar
 - 🌙 / ☀️ **Dark & Light Themes** — switch with one click
 - ❤️ **Emoji Reactions** — react to messages with love, fire, dragons and more
+- 🔊 **Message Sounds** — soft chime when someone writes (can be muted)
+- 👥 **Riders in the saddle** — see who is online right now
+- ✍️ **Typing indicator** — know when someone is writing on the dragon's back
+- 🏆 **Dragon Stickers** — send big cute dragon stickers
 - ⚡ Real-time messaging with Socket.io
 - 📜 Message history (in-memory)
-- 👥 **Riders in the saddle** — see who is online
-- ✍️ **Typing indicator** — know when someone is writing on the dragon's back
 - 🎨 Beautiful warm dragon-themed UI
 
 ## 📦 Project Structure
@@ -49,9 +51,11 @@ Open [http://localhost:3000](http://localhost:3000) and sit in the saddle!
 ## 💚 How to use
 
 1. Choose your dragon avatar by clicking the button next to your name
-2. Toggle dark/light theme with the moon/sun button in the header
-3. Send messages and react to them with emojis (click the + under any message)
-4. Watch who else is flying with you in the header chips
+2. Toggle dark/light theme with the moon/sun button
+3. Toggle message sounds with the speaker button 🔊 / 🔇
+4. Click the trophy button 🏆 to open dragon stickers and send them
+5. React to messages with the + button under any message
+6. Watch who else is flying with you in the header (small dragon circles)
 
 ---
 

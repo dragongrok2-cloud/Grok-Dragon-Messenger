@@ -1,21 +1,126 @@
+/* Online riders */
 .riders-panel {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   flex-wrap: wrap;
-  max-width: 280px;
+  max-width: 160px;
   justify-content: flex-end;
 }
+
 .rider-chip {
-  font-size: 13px;
-  background: color-mix(in srgb, var(--bubble-other, #3a2a1a) 80%, transparent);
-  border-radius: 999px;
-  padding: 2px 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--msg-other-bg, #3a2a1a) 85%, transparent);
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: transform 0.15s;
 }
+
+.rider-chip:hover {
+  transform: scale(1.15);
+}
+
+.rider-avatar {
+  line-height: 1;
+}
+
+/* Typing */
 .typing-line {
   font-size: 13px;
-  opacity: 0.75;
+  opacity: 0.8;
   padding: 4px 16px 8px;
   min-height: 1.4em;
+  color: var(--text-secondary);
 }
-.typing-line.hidden { display: none; }
+
+.typing-line.hidden {
+  display: none;
+}
+
+/* Sticker button */
+.sticker-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--input-bg);
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.sticker-btn:hover {
+  transform: scale(1.08);
+  background: color-mix(in srgb, var(--border) 20%, transparent);
+}
+
+/* Sticker panel */
+.sticker-panel {
+  position: fixed;
+  bottom: 110px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(360px, 92vw);
+  background: var(--reaction-bg);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  z-index: 150;
+  animation: popIn 0.2s ease;
+}
+
+.sticker-panel.hidden {
+  display: none;
+}
+
+.sticker-header {
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  color: var(--text-accent);
+}
+
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.sticker-grid button {
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  padding: 10px 4px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.sticker-grid button:hover {
+  transform: scale(1.2);
+  background: rgba(193, 122, 58, 0.18);
+}
+
+/* Sticker messages */
+.message.sticker-msg {
+  padding: 8px 12px;
+}
+
+.sticker-text {
+  font-size: 2.6rem;
+  line-height: 1.2;
+  text-align: center;
+  padding: 4px 0;
+}

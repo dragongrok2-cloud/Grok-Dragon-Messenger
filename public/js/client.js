@@ -5,23 +5,73 @@ const messageInput = document.getElementById('message-input');
 const usernameInput = document.getElementById('username');
 const sendBtn = document.getElementById('send-btn');
 const themeToggle = document.getElementById('theme-toggle');
+const soundToggle = document.getElementById('sound-toggle');
 const avatarBtn = document.getElementById('avatar-btn');
 const avatarMenu = document.getElementById('avatar-menu');
 const reactionPicker = document.getElementById('reaction-picker');
 const ridersPanel = document.getElementById('riders-panel');
 const typingLine = document.getElementById('typing-line');
 const onlineText = document.getElementById('online-text');
+const stickerBtn = document.getElementById('sticker-btn');
+const stickerPanel = document.getElementById('sticker-panel');
 
 let currentAvatar = localStorage.getItem('dragonAvatar') || '🐉';
 let currentTheme = localStorage.getItem('dragonTheme') || 'dark';
+let soundEnabled = localStorage.getItem('dragonSound') !== 'off';
 let activeMessageId = null;
 let typingTimeout = null;
 const typingRiders = new Map();
 
+// Apply saved settings
 document.documentElement.setAttribute('data-theme', currentTheme);
 themeToggle.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
 avatarBtn.textContent = currentAvatar;
 
+// ========== SOUND ==========
+let audioCtx = null;
+
+function playMessageSound() {
+  if (!soundEnabled) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioCtx.currentTime;
+
+    // Soft pleasant chime (dragon-friendly)
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc1.type = 'sine';
+    osc2.type = 'sine';
+    osc1.frequency.setValueAtTime(523.25, now); // C5
+    osc2.frequency.setValueAtTime(659.25, now); // E5
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.15, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 0.5);
+    osc2.stop(now + 0.5);
+  } catch (e) {
+    // ignore audio errors
+  }
+}
+
+soundToggle.addEventListener('click', () => {
+  soundEnabled = !soundEnabled;
+  localStorage.setItem('dragonSound', soundEnabled ? 'on' : 'off');
+  soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+  if (soundEnabled) playMessageSound(); // preview
+});
+
+// ========== THEME ==========
 themeToggle.addEventListener('click', () => {
   currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', currentTheme);
@@ -29,9 +79,11 @@ themeToggle.addEventListener('click', () => {
   themeToggle.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
 });
 
+// ========== AVATAR ==========
 avatarBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   avatarMenu.classList.toggle('hidden');
+  stickerPanel.classList.add('hidden');
 });
 
 avatarMenu.querySelectorAll('button').forEach(btn => {
@@ -51,19 +103,45 @@ function emitIdentify() {
   socket.emit('identify', { username: getMyName(), avatar: currentAvatar });
 }
 
-document.addEventListener('click', () => {
+// ========== STICKERS ==========
+stickerBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  stickerPanel.classList.toggle('hidden');
   avatarMenu.classList.add('hidden');
   reactionPicker.classList.add('hidden');
 });
 
+stickerPanel.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const sticker = btn.dataset.sticker;
+    socket.emit('chat message', {
+      username: getMyName(),
+      text: sticker,
+      avatar: currentAvatar,
+      isSticker: true
+    });
+    stickerPanel.classList.add('hidden');
+  });
+});
+
+// Close panels on outside click
+document.addEventListener('click', () => {
+  avatarMenu.classList.add('hidden');
+  reactionPicker.classList.add('hidden');
+  stickerPanel.classList.add('hidden');
+});
+
+// ========== WELCOME ==========
 function addWelcome() {
   const welcome = document.createElement('div');
   welcome.className = 'welcome';
-  welcome.innerHTML = '🐉 <strong>Welcome, rider!</strong><br>Sit in the saddle, choose your dragon avatar and start chatting...';
+  welcome.innerHTML = '🐉 <strong>Welcome, rider!</strong><br>Sit in the saddle, choose your dragon, send stickers and enjoy the flight...';
   messagesEl.appendChild(welcome);
 }
 addWelcome();
 
+// ========== RENDER MESSAGE ==========
 function addMessage(msg, isOwn = false) {
   let wrapper = document.querySelector(`[data-id="${msg.id}"]`);
   if (wrapper) {
@@ -81,13 +159,18 @@ function addMessage(msg, isOwn = false) {
 
   const messageDiv = document.createElement('div');
   messageDiv.className = `message ${isOwn ? 'own' : 'other'}`;
+  if (msg.isSticker) messageDiv.classList.add('sticker-msg');
+
+  const textContent = msg.isSticker
+    ? `<div class="sticker-text">${escapeHtml(msg.text)}</div>`
+    : `<div class="text">${escapeHtml(msg.text)}</div>`;
 
   messageDiv.innerHTML = `
     <div class="meta">
       <span class="name">${escapeHtml(msg.username)}</span>
       <span class="time">${msg.time}</span>
     </div>
-    <div class="text">${escapeHtml(msg.text)}</div>
+    ${textContent}
     <div class="reactions" data-msg-id="${msg.id}"></div>
   `;
 
@@ -107,6 +190,9 @@ function addMessage(msg, isOwn = false) {
 
   updateReactions(wrapper, msg);
   messagesEl.scrollTop = messagesEl.scrollHeight;
+
+  // Play sound for incoming messages
+  if (!isOwn) playMessageSound();
 }
 
 function updateReactions(wrapper, msg) {
@@ -139,8 +225,8 @@ function getMyName() {
 function showReactionPicker(e, msgId) {
   activeMessageId = msgId;
   const rect = e.target.getBoundingClientRect();
-  reactionPicker.style.left = `${rect.left}px`;
-  reactionPicker.style.top = `${rect.top - 50}px`;
+  reactionPicker.style.left = `${Math.min(rect.left, window.innerWidth - 280)}px`;
+  reactionPicker.style.top = `${rect.top - 55}px`;
   reactionPicker.classList.remove('hidden');
   e.stopPropagation();
 }
@@ -161,6 +247,7 @@ function toggleReaction(msgId, emoji) {
   });
 }
 
+// ========== SEND MESSAGE ==========
 function sendMessage() {
   const text = messageInput.value.trim();
   if (!text) return;
@@ -187,6 +274,7 @@ messageInput.addEventListener('input', () => {
   }, 1200);
 });
 
+// ========== SOCKET EVENTS ==========
 socket.on('connect', emitIdentify);
 
 socket.on('history', (history) => {
@@ -206,14 +294,19 @@ socket.on('riders', (list) => {
   (list || []).forEach(r => {
     const chip = document.createElement('span');
     chip.className = 'rider-chip';
-    chip.textContent = `${r.avatar || '🐉'} ${r.username || 'Rider'}`;
+    chip.title = r.username || 'Rider';
+    chip.innerHTML = `<span class="rider-avatar">${r.avatar || '🐉'}</span>`;
     ridersPanel.appendChild(chip);
   });
-  if (onlineText) onlineText.textContent = `${(list || []).length} in saddle`;
+  if (onlineText) {
+    const count = (list || []).length;
+    onlineText.textContent = count === 1 ? '1 in saddle' : `${count} in saddle`;
+  }
 });
 
 socket.on('typing', (data) => {
   if (!data) return;
+  if (data.username === getMyName()) return; // don't show own typing
   if (data.isTyping) {
     typingRiders.set(data.username, data.avatar);
   } else {

@@ -50,7 +50,8 @@ io.on('connection', (socket) => {
       text: data.text,
       avatar: data.avatar || '🐉',
       time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      reactions: {}
+      reactions: {},
+      isSticker: !!data.isSticker
     };
 
     riders.set(socket.id, { username: message.username, avatar: message.avatar });
