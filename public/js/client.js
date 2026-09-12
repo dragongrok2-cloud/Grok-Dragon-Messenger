@@ -14,21 +14,22 @@ const typingLine = document.getElementById('typing-line');
 const onlineText = document.getElementById('online-text');
 const stickerBtn = document.getElementById('sticker-btn');
 const stickerPanel = document.getElementById('sticker-panel');
+const cavesEl = document.getElementById('caves');
 
 let currentAvatar = localStorage.getItem('dragonAvatar') || '🐉';
 let currentTheme = localStorage.getItem('dragonTheme') || 'dark';
 let soundEnabled = localStorage.getItem('dragonSound') !== 'off';
+let currentRoom = localStorage.getItem('dragonRoom') || 'saddle';
 let activeMessageId = null;
 let typingTimeout = null;
 const typingRiders = new Map();
 
-// Apply saved settings
 document.documentElement.setAttribute('data-theme', currentTheme);
 themeToggle.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
 soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
 avatarBtn.textContent = currentAvatar;
+setActiveCave(currentRoom);
 
-// ========== SOUND ==========
 let audioCtx = null;
 
 function playMessageSound() {
@@ -36,42 +37,33 @@ function playMessageSound() {
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const now = audioCtx.currentTime;
-
-    // Soft pleasant chime (dragon-friendly)
     const osc1 = audioCtx.createOscillator();
     const osc2 = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-
     osc1.type = 'sine';
     osc2.type = 'sine';
-    osc1.frequency.setValueAtTime(523.25, now); // C5
-    osc2.frequency.setValueAtTime(659.25, now); // E5
-
+    osc1.frequency.setValueAtTime(523.25, now);
+    osc2.frequency.setValueAtTime(659.25, now);
     gain.gain.setValueAtTime(0.0001, now);
     gain.gain.exponentialRampToValueAtTime(0.15, now + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
-
     osc1.connect(gain);
     osc2.connect(gain);
     gain.connect(audioCtx.destination);
-
     osc1.start(now);
     osc2.start(now);
     osc1.stop(now + 0.5);
     osc2.stop(now + 0.5);
-  } catch (e) {
-    // ignore audio errors
-  }
+  } catch (e) {}
 }
 
 soundToggle.addEventListener('click', () => {
   soundEnabled = !soundEnabled;
   localStorage.setItem('dragonSound', soundEnabled ? 'on' : 'off');
   soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
-  if (soundEnabled) playMessageSound(); // preview
+  if (soundEnabled) playMessageSound();
 });
 
-// ========== THEME ==========
 themeToggle.addEventListener('click', () => {
   currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', currentTheme);
@@ -79,7 +71,6 @@ themeToggle.addEventListener('click', () => {
   themeToggle.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
 });
 
-// ========== AVATAR ==========
 avatarBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   avatarMenu.classList.toggle('hidden');
@@ -103,7 +94,24 @@ function emitIdentify() {
   socket.emit('identify', { username: getMyName(), avatar: currentAvatar });
 }
 
-// ========== STICKERS ==========
+function setActiveCave(roomId) {
+  currentRoom = roomId;
+  localStorage.setItem('dragonRoom', roomId);
+  cavesEl.querySelectorAll('.cave-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.room === roomId);
+  });
+}
+
+cavesEl.querySelectorAll('.cave-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const room = btn.dataset.room;
+    if (room === currentRoom) return;
+    typingRiders.clear();
+    typingLine.classList.add('hidden');
+    socket.emit('join room', room);
+  });
+});
+
 stickerBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   stickerPanel.classList.toggle('hidden');
@@ -125,23 +133,26 @@ stickerPanel.querySelectorAll('button').forEach(btn => {
   });
 });
 
-// Close panels on outside click
 document.addEventListener('click', () => {
   avatarMenu.classList.add('hidden');
   reactionPicker.classList.add('hidden');
   stickerPanel.classList.add('hidden');
 });
 
-// ========== WELCOME ==========
 function addWelcome() {
   const welcome = document.createElement('div');
   welcome.className = 'welcome';
-  welcome.innerHTML = '🐉 <strong>Welcome, rider!</strong><br>Sit in the saddle, choose your dragon, send stickers and enjoy the flight...';
+  welcome.innerHTML = '🐉 <strong>Добро пожаловать в пещеру!</strong><br>Садись в седло, выбери пещеру и лети со мной...';
   messagesEl.appendChild(welcome);
 }
+
+function clearMessages() {
+  messagesEl.innerHTML = '';
+  addWelcome();
+}
+
 addWelcome();
 
-// ========== RENDER MESSAGE ==========
 function addMessage(msg, isOwn = false) {
   let wrapper = document.querySelector(`[data-id="${msg.id}"]`);
   if (wrapper) {
@@ -191,7 +202,6 @@ function addMessage(msg, isOwn = false) {
   updateReactions(wrapper, msg);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 
-  // Play sound for incoming messages
   if (!isOwn) playMessageSound();
 }
 
@@ -247,7 +257,6 @@ function toggleReaction(msgId, emoji) {
   });
 }
 
-// ========== SEND MESSAGE ==========
 function sendMessage() {
   const text = messageInput.value.trim();
   if (!text) return;
@@ -274,11 +283,18 @@ messageInput.addEventListener('input', () => {
   }, 1200);
 });
 
-// ========== SOCKET EVENTS ==========
-socket.on('connect', emitIdentify);
+socket.on('connect', () => {
+  emitIdentify();
+  socket.emit('join room', currentRoom);
+});
+
+socket.on('room', (roomId) => {
+  setActiveCave(roomId);
+});
 
 socket.on('history', (history) => {
-  history.forEach(msg => addMessage(msg, msg.username === getMyName()));
+  clearMessages();
+  (history || []).forEach(msg => addMessage(msg, msg.username === getMyName()));
 });
 
 socket.on('chat message', (msg) => {
@@ -306,7 +322,7 @@ socket.on('riders', (list) => {
 
 socket.on('typing', (data) => {
   if (!data) return;
-  if (data.username === getMyName()) return; // don't show own typing
+  if (data.username === getMyName()) return;
   if (data.isTyping) {
     typingRiders.set(data.username, data.avatar);
   } else {
