@@ -20,14 +20,19 @@ let currentAvatar = localStorage.getItem('dragonAvatar') || '🐉';
 let currentTheme = localStorage.getItem('dragonTheme') || 'dark';
 let soundEnabled = localStorage.getItem('dragonSound') !== 'off';
 let currentRoom = localStorage.getItem('dragonRoom') || 'saddle';
+let savedName = localStorage.getItem('dragonName') || '';
 let activeMessageId = null;
 let typingTimeout = null;
 const typingRiders = new Map();
 
+// Apply saved settings
 document.documentElement.setAttribute('data-theme', currentTheme);
 themeToggle.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
 soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
 avatarBtn.textContent = currentAvatar;
+if (savedName) {
+  usernameInput.value = savedName;
+}
 setActiveCave(currentRoom);
 
 let audioCtx = null;
@@ -87,8 +92,17 @@ avatarMenu.querySelectorAll('button').forEach(btn => {
   });
 });
 
-usernameInput.addEventListener('change', emitIdentify);
-usernameInput.addEventListener('blur', emitIdentify);
+function saveName() {
+  const name = usernameInput.value.trim();
+  if (name) {
+    localStorage.setItem('dragonName', name);
+    savedName = name;
+  }
+  emitIdentify();
+}
+
+usernameInput.addEventListener('change', saveName);
+usernameInput.addEventListener('blur', saveName);
 
 function emitIdentify() {
   socket.emit('identify', { username: getMyName(), avatar: currentAvatar });
@@ -141,8 +155,8 @@ document.addEventListener('click', () => {
 
 function addWelcome() {
   const welcome = document.createElement('div');
-  welcome.className = 'welcome';
-  welcome.innerHTML = '🐉 <strong>Добро пожаловать в пещеру!</strong><br>Садись в седло, выбери пещеру и лети со мной...';
+  welcome.className = 'welcome fiery-welcome';
+  welcome.innerHTML = '🔥🐉 <strong>Огненное приветствие, всадник!</strong><br>Садись в седло, выбери пещеру и лети со мной сквозь облака огня...';
   messagesEl.appendChild(welcome);
 }
 
@@ -153,7 +167,20 @@ function clearMessages() {
 
 addWelcome();
 
+function addSystemMessage(text) {
+  const el = document.createElement('div');
+  el.className = 'system-message';
+  el.innerHTML = text;
+  messagesEl.appendChild(el);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
 function addMessage(msg, isOwn = false) {
+  if (msg.isSystem) {
+    addSystemMessage(msg.text);
+    return;
+  }
+
   let wrapper = document.querySelector(`[data-id="${msg.id}"]`);
   if (wrapper) {
     updateReactions(wrapper, msg);
@@ -260,6 +287,7 @@ function toggleReaction(msgId, emoji) {
 function sendMessage() {
   const text = messageInput.value.trim();
   if (!text) return;
+  saveName(); // ensure name is saved when sending
   socket.emit('chat message', {
     username: getMyName(),
     text,
@@ -303,6 +331,10 @@ socket.on('chat message', (msg) => {
 
 socket.on('message updated', (msg) => {
   addMessage(msg, msg.username === getMyName());
+});
+
+socket.on('system message', (msg) => {
+  addSystemMessage(msg.text);
 });
 
 socket.on('riders', (list) => {
