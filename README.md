@@ -11,6 +11,8 @@ Soft fire, warm messages, and a bit of magic in every chat.
 ## ✨ Features
 
 - 🐉 **Dragon Avatars** — choose your own dragon (or creature) avatar
+- 📝 **Сохранение имени всадника** — имя запоминается в браузере и подставляется автоматически
+- 🔥 **Огненное приветствие** — когда всадник впервые называет своё имя, дракон приветствует его огнём
 - 🌙 / ☀️ **Dark & Light Themes** — switch with one click
 - ❤️ **Emoji Reactions** — react to messages with love, fire, dragons and more
 - 🔊 **Message Sounds** — soft chime when someone writes (can be muted)
@@ -51,13 +53,15 @@ Open [http://localhost:3000](http://localhost:3000) and sit in the saddle!
 
 ## 💚 How to use
 
-1. Choose your dragon avatar by clicking the button next to your name
-2. Toggle dark/light theme with the moon/sun button
-3. Toggle message sounds with the speaker button 🔊 / 🔇
-4. Click the trophy button 🏆 to open dragon stickers and send them
-5. React to messages with the + button under any message
-6. Switch caves: 🛋️ Седло, ☁️ Небеса, 🌑 Пещера
-7. Watch who else is flying with you in the header (small dragon circles)
+1. Введи своё имя всадника — оно сохранится и будет подставляться при следующих визитах
+2. Choose your dragon avatar by clicking the button next to your name
+3. Toggle dark/light theme with the moon/sun button
+4. Toggle message sounds with the speaker button 🔊 / 🔇
+5. Click the trophy button 🏆 to open dragon stickers and send them
+6. React to messages with the + button under any message
+7. Switch caves: 🛋️ Седло, ☁️ Небеса, 🌑 Пещера
+8. Watch who else is flying with you in the header (small dragon circles)
+9. Получи огненное приветствие от дракона, когда впервые назовёшь своё имя 🔥
 
 ---
 
