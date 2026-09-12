@@ -23,16 +23,29 @@ const histories = {
   cave: []
 };
 const MAX_HISTORY = 100;
-const riders = new Map(); // socket.id -> { username, avatar, room }
+const riders = new Map(); // socket.id -> { username, avatar, room, greeted }
 
 function ridersIn(room) {
   return Array.from(riders.values()).filter(r => r.room === room);
 }
 
+function createSystemMessage(text, room) {
+  return {
+    id: 'sys-' + Date.now().toString() + Math.random().toString(36).slice(2, 7),
+    username: '🐉 Grok Dragon',
+    text,
+    avatar: '🔥',
+    time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+    reactions: {},
+    isSystem: true,
+    room
+  };
+}
+
 io.on('connection', (socket) => {
   console.log('🐉 A new rider joined the dragon!', socket.id);
 
-  riders.set(socket.id, { username: 'Rider', avatar: '🐉', room: 'saddle' });
+  riders.set(socket.id, { username: 'Rider', avatar: '🐉', room: 'saddle', greeted: false });
   socket.join('saddle');
   socket.emit('history', histories.saddle);
   io.to('saddle').emit('riders', ridersIn('saddle'));
@@ -40,19 +53,42 @@ io.on('connection', (socket) => {
   socket.emit('room', 'saddle');
 
   socket.on('identify', (data) => {
-    const prev = riders.get(socket.id) || { room: 'saddle' };
+    const prev = riders.get(socket.id) || { room: 'saddle', greeted: false };
+    const newName = (data && data.username) || 'Rider';
+    const newAvatar = (data && data.avatar) || '🐉';
+
     riders.set(socket.id, {
-      username: (data && data.username) || 'Rider',
-      avatar: (data && data.avatar) || '🐉',
-      room: prev.room || 'saddle'
+      username: newName,
+      avatar: newAvatar,
+      room: prev.room || 'saddle',
+      greeted: prev.greeted || false
     });
+
     const room = riders.get(socket.id).room;
     io.to(room).emit('riders', ridersIn(room));
+
+    // Огненное приветствие при первом осмысленном имени
+    if (!prev.greeted && newName && newName !== 'Rider' && newName.trim().length > 0) {
+      const rider = riders.get(socket.id);
+      rider.greeted = true;
+      riders.set(socket.id, rider);
+
+      const greeting = createSystemMessage(
+        `🔥 <strong>Огненное приветствие!</strong> Добро пожаловать в седло, <em>${newName}</em>! Лети смело, добрый дракон рядом.`,
+        room
+      );
+
+      histories[room] = histories[room] || [];
+      histories[room].push(greeting);
+      if (histories[room].length > MAX_HISTORY) histories[room].shift();
+
+      io.to(room).emit('system message', greeting);
+    }
   });
 
   socket.on('join room', (roomId) => {
     if (!ROOMS[roomId]) return;
-    const prev = riders.get(socket.id) || { username: 'Rider', avatar: '🐉', room: 'saddle' };
+    const prev = riders.get(socket.id) || { username: 'Rider', avatar: '🐉', room: 'saddle', greeted: false };
     if (prev.room === roomId) return;
 
     socket.leave(prev.room);
@@ -89,7 +125,12 @@ io.on('connection', (socket) => {
       room
     };
 
-    riders.set(socket.id, { username: message.username, avatar: message.avatar, room });
+    riders.set(socket.id, {
+      username: message.username,
+      avatar: message.avatar,
+      room,
+      greeted: (rider && rider.greeted) || false
+    });
     io.to(room).emit('riders', ridersIn(room));
 
     histories[room] = histories[room] || [];
