@@ -17,8 +17,9 @@ Soft fire, warm messages, and a bit of magic in every chat.
 - 👥 **Riders in the saddle** — see who is online right now
 - ✍️ **Typing indicator** — know when someone is writing on the dragon's back
 - 🏆 **Dragon Stickers** — send big cute dragon stickers
+- 🛋️ **Пещеры (комнаты)** — Седло, Небеса и Пещера, каждая со своей историей сообщений
 - ⚡ Real-time messaging with Socket.io
-- 📜 Message history (in-memory)
+- 📜 Message history (in-memory, per cave)
 - 🎨 Beautiful warm dragon-themed UI
 
 ## 📦 Project Structure
@@ -55,7 +56,8 @@ Open [http://localhost:3000](http://localhost:3000) and sit in the saddle!
 3. Toggle message sounds with the speaker button 🔊 / 🔇
 4. Click the trophy button 🏆 to open dragon stickers and send them
 5. React to messages with the + button under any message
-6. Watch who else is flying with you in the header (small dragon circles)
+6. Switch caves: 🛋️ Седло, ☁️ Небеса, 🌑 Пещера
+7. Watch who else is flying with you in the header (small dragon circles)
 
 ---
 
