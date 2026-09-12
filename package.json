@@ -1,6 +1,6 @@
 {
   "name": "grok-dragon-messenger",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A friendly messenger powered by Grok the kind dragon with a saddle",
   "main": "server.js",
   "scripts": {
