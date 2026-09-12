@@ -124,3 +124,34 @@
   text-align: center;
   padding: 4px 0;
 }
+
+/* Caves / rooms */
+.caves {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px 4px;
+  overflow-x: auto;
+}
+
+.cave-btn {
+  border: 1.5px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text-secondary, inherit);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.15s, background 0.15s, border-color 0.15s;
+}
+
+.cave-btn:hover {
+  transform: translateY(-1px);
+}
+
+.cave-btn.active {
+  background: color-mix(in srgb, #c17a3a 28%, transparent);
+  border-color: #c17a3a;
+  font-weight: 700;
+}
