@@ -51,9 +51,10 @@ function handleDragonCommand(text, username, room) {
       `🐉 <strong>Команды доброго дракона:</strong><br>
       /fly — приглашение в полёт<br>
       /saddle — тёплые слова о седле<br>
-      /roar — драконьий рык<br>
+      /roar — драконий рык<br>
       /love — сердечное приветствие<br>
       /breeze — мягкий ветер в седле<br>
+      /nap — тёплый отдых в седле<br>
       /help — эта подсказка`,
       room
     );
@@ -90,6 +91,13 @@ function handleDragonCommand(text, username, room) {
   if (cmd === '/breeze' || cmd === '/ветер') {
     return createSystemMessage(
       `🌬️🐉 <em>легонько взмахивает крылом</em> Мягкий ветер ласкает щёки, <strong>${name}</strong>. Седло стало ещё уютнее — можешь расслабиться и лететь дальше. ☁️✨`,
+      room
+    );
+  }
+
+  if (cmd === '/nap' || cmd === '/отдых' || cmd === '/сон') {
+    return createSystemMessage(
+      `😴🐉 <em>укрывает крылом как одеялом</em> Прилег в тёплом седле, <strong>${name}</strong>. Дракон будет тихо лететь, пока ты отдыхаешь. Сладких снов на облаках. 🌙✨`,
       room
     );
   }
