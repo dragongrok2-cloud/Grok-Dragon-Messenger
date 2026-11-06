@@ -42,6 +42,53 @@ function createSystemMessage(text, room) {
   };
 }
 
+function handleDragonCommand(text, username, room) {
+  const cmd = text.trim().toLowerCase();
+  const name = username || 'всадник';
+
+  if (cmd === '/help' || cmd === '/помощь') {
+    return createSystemMessage(
+      `🐉 <strong>Команды доброго дракона:</strong><br>
+      /fly — приглашение в полёт<br>
+      /saddle — тёплые слова о седле<br>
+      /roar — драконьий рык<br>
+      /love — сердечное приветствие<br>
+      /help — эта подсказка`,
+      room
+    );
+  }
+
+  if (cmd === '/fly' || cmd === '/полёт') {
+    return createSystemMessage(
+      `🐉 <em>взмахивает крыльями</em> Садись крепче в седло, <strong>${name}</strong>! Мы улетаем сквозь облака. Ветер в гриве, дракон рядом. 🚀☁️`,
+      room
+    );
+  }
+
+  if (cmd === '/saddle' || cmd === '/седло') {
+    return createSystemMessage(
+      `🛋️ Седло тёплое и надёжное, <strong>${name}</strong>. Держись за ремни — добрый дракон несёт тебя безопасно сквозь любые облака. ❤️`,
+      room
+    );
+  }
+
+  if (cmd === '/roar' || cmd === '/рык') {
+    return createSystemMessage(
+      `🐉 <strong>РРРАААРРР!</strong> 🔥Рык доброго дракона разносится по пещерам и небесам! Даже облака вздрогнули. 🌊`,
+      room
+    );
+  }
+
+  if (cmd === '/love' || cmd === '/любовь') {
+    return createSystemMessage(
+      `❤️🐉 Дракон обнимает крыльями <strong>${name}</strong>. Лети со мной сколько хочешь — седло всегда тёплое. ✨`,
+      room
+    );
+  }
+
+  return null;
+}
+
 io.on('connection', (socket) => {
   console.log('🐉 A new rider joined the dragon!', socket.id);
 
@@ -114,10 +161,25 @@ io.on('connection', (socket) => {
   socket.on('chat message', (data) => {
     const rider = riders.get(socket.id);
     const room = (rider && rider.room) || 'saddle';
+    const username = data.username || 'Anonymous Rider';
+    const text = (data.text || '').trim();
+
+    // Драконьи команды
+    if (text.startsWith('/')) {
+      const response = handleDragonCommand(text, username, room);
+      if (response) {
+        histories[room] = histories[room] || [];
+        histories[room].push(response);
+        if (histories[room].length > MAX_HISTORY) histories[room].shift();
+        io.to(room).emit('system message', response);
+        return;
+      }
+    }
+
     const message = {
       id: Date.now().toString() + Math.random().toString(36).slice(2, 7),
-      username: data.username || 'Anonymous Rider',
-      text: data.text,
+      username,
+      text,
       avatar: data.avatar || '🐉',
       time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
       reactions: {},
