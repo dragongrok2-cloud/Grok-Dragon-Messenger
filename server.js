@@ -58,6 +58,7 @@ function handleDragonCommand(text, username, room) {
       /cuddle — тёплое объятие крыльями<br>
       /glow — тёплое сияние чешуи<br>
       /warm — тёплое драконье тепло<br>
+      /stars — тёплые звёзды над седлом<br>
       /help — эта подсказка`,
       room
     );
@@ -122,6 +123,13 @@ function handleDragonCommand(text, username, room) {
   if (cmd === '/warm' || cmd === '/тепло' || cmd === '/уют') {
     return createSystemMessage(
       `🔥🐉 <em>прижимается ближе</em> Тепло драконьего тела согревает тебя, <strong>${name}</strong>. В седле всегда уютно и безопасно — добрый дракон рядом. ❤️✨`,
+      room
+    );
+  }
+
+  if (cmd === '/stars' || cmd === '/звёзды' || cmd === '/звезды' || cmd === '/star') {
+    return createSystemMessage(
+      `🌟🐉 <em>смотрит на небо</em> Звёзды мягко мерцают над нами, <strong>${name}</strong>. В седле тепло и спокойно — добрый дракон несёт тебя сквозь ночное небо. ✨☁️`,
       room
     );
   }
