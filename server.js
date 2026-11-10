@@ -59,6 +59,7 @@ function handleDragonCommand(text, username, room) {
       /glow — тёплое сияние чешуи<br>
       /warm — тёплое драконье тепло<br>
       /stars — тёплые звёзды над седлом<br>
+      /moon — тёплый лунный свет над седлом<br>
       /help — эта подсказка`,
       room
     );
@@ -130,6 +131,13 @@ function handleDragonCommand(text, username, room) {
   if (cmd === '/stars' || cmd === '/звёзды' || cmd === '/звезды' || cmd === '/star') {
     return createSystemMessage(
       `🌟🐉 <em>смотрит на небо</em> Звёзды мягко мерцают над нами, <strong>${name}</strong>. В седле тепло и спокойно — добрый дракон несёт тебя сквозь ночное небо. ✨☁️`,
+      room
+    );
+  }
+
+  if (cmd === '/moon' || cmd === '/луна' || cmd === '/месяц') {
+    return createSystemMessage(
+      `🌕🐉 <em>чешуя мерцает лунным серебром</em> Мягкий лунный свет окутывает седло, <strong>${name}</strong>. Ночное небо становится тёплым и уютным рядом с добрым драконом. ✨☁️`,
       room
     );
   }
