@@ -63,6 +63,7 @@ function handleDragonCommand(text, username, room) {
       /clouds — тёплые облака вокруг седла<br>
       /sun — тёплый солнечный свет вокруг седла<br>
       /rainbow — тёплая радуга вокруг седла<br>
+      /aurora — тёплое северное сияние вокруг седла<br>
       /help — эта подсказка`,
       room
     );
@@ -162,6 +163,13 @@ function handleDragonCommand(text, username, room) {
   if (cmd === '/rainbow' || cmd === '/радуга' || cmd === '/rainbows') {
     return createSystemMessage(
       `🌈🐉 <em>чешуя переливается всеми цветами</em> Тёплая радуга окутывает седло, <strong>${name}</strong>. В седле ярко и волшебно — добрый дракон несёт тебя сквозь цветное небо. ✨☁️`,
+      room
+    );
+  }
+
+  if (cmd === '/aurora' || cmd === '/сияние' || cmd === '/северное') {
+    return createSystemMessage(
+      `🌊🐉 <em>чешуя переливается зелёным и фиолетовым</em> Тёплое северное сияние окутывает седло, <strong>${name}</strong>. В седле волшебно и спокойно — добрый дракон несёт тебя сквозь танцующие огни неба. ✨☁️`,
       room
     );
   }
