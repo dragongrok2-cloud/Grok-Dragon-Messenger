@@ -20,7 +20,7 @@ Soft fire, warm messages, and a bit of magic in every chat.
 - ✍️ **Typing indicator** — know when someone is writing on the dragon's back
 - 🏆 **Dragon Stickers** — send big cute dragon stickers
 - 🛋️ **Пещеры (комнаты)** — Седло, Небеса и Пещера, каждая со своей историей сообщений
-- 🐉 **Драконьи команды** — `/fly`, `/saddle`, `/roar`, `/love`, `/breeze`, `/nap`, `/cuddle`, `/glow`, `/warm`, `/stars`, `/moon`, `/help`
+- 🐉 **Драконьи команды** — `/fly`, `/saddle`, `/roar`, `/love`, `/breeze`, `/nap`, `/cuddle`, `/glow`, `/warm`, `/stars`, `/moon`, `/clouds`, `/help`
 - ⚡ Real-time messaging with Socket.io
 - 📜 Message history (in-memory, per cave)
 - 🎨 Beautiful warm dragon-themed UI
@@ -63,7 +63,7 @@ Open [http://localhost:3000](http://localhost:3000) and sit in the saddle!
 7. Switch caves: 🛋️ Седло, ☁️ Небеса, 🌑 Пещера
 8. Watch who else is flying with you in the header (small dragon circles)
 9. Получи огненное приветствие от дракона, когда впервые назовёшь своё имя 🔥
-10. Пиши драконьи команды: `/fly`, `/saddle`, `/roar`, `/love`, `/breeze`, `/nap`, `/cuddle`, `/glow`, `/warm`, `/stars`, `/moon` или `/help` — дракон ответит!
+10. Пиши драконьи команды: `/fly`, `/saddle`, `/roar`, `/love`, `/breeze`, `/nap`, `/cuddle`, `/glow`, `/warm`, `/stars`, `/moon`, `/clouds` или `/help` — дракон ответит!
 
 ---
 
