@@ -69,6 +69,7 @@ function handleDragonCommand(text, username, room) {
       /petals — тёплые лепестки цветов вокруг седла<br>
       /leaves — тёплые листья вокруг седла<br>
       /snowflakes — тёплые снежинки вокруг седла<br>
+      /sparkles — тёплые искры вокруг седла<br>
       /help — эта подсказка`,
       room
     );
@@ -210,6 +211,13 @@ function handleDragonCommand(text, username, room) {
   if (cmd === '/snowflakes' || cmd === '/снежинки' || cmd === '/snow' || cmd === '/снег') {
     return createSystemMessage(
       `❄️🐉 <em>мягко призывает снежинки</em> Тёплые пушистые снежинки окутывают седло, <strong>${name}</strong>. В седле мягко и сказочно — добрый дракон несёт тебя сквозь тихий снежный танец. ✨☁️`,
+      room
+    );
+  }
+
+  if (cmd === '/sparkles' || cmd === '/искры' || cmd === '/блёстки' || cmd === '/sparkle') {
+    return createSystemMessage(
+      `✨🐉 <em>мягко призывает искры</em> Тёплые маленькие искры окутывают седло, <strong>${name}</strong>. В седле волшебно и светло — добрый дракон несёт тебя сквозь мерцающий дождь искр. ✨☁️`,
       room
     );
   }
