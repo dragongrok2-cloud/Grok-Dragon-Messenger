@@ -75,6 +75,7 @@ function handleDragonCommand(text, username, room) {
       /rain — тёплый дождь вокруг седла<br>
       /thunder — тёплый гром вокруг седла<br>
       /nuzzle — тёплый тычок носом в седло<br>
+      /purr — тёплое мурлыканье дракона<br>
       /help — эта подсказка`,
       room
     );
@@ -180,7 +181,7 @@ function handleDragonCommand(text, username, room) {
 
   if (cmd === '/aurora' || cmd === '/сияние' || cmd === '/северное') {
     return createSystemMessage(
-      `🌊🐉 <em>чешуя переливается зелёным и фиолетовым</em> Тёплое северное сияние окутывает седло, <strong>${name}</strong>. В седле волшебно и спокойно — добрый дракон несёт тебя сквозь танцующие огни неба. ✨☁️`,
+      `🌊🐉 <em>чешуя переливается зелёным и фиолетовым</em> Тёплое северное сияние окутывает седло, <strong>${name}</strong>. В седле волшебно и спокойно — добрый дракпн несёт тебя сквозь танцующие огни неба. ✨☁️`,
       room
     );
   }
@@ -258,6 +259,13 @@ function handleDragonCommand(text, username, room) {
   if (cmd === '/nuzzle' || cmd === '/тычок' || cmd === '/нос') {
     return createSystemMessage(
       `🐉💕 <em>мягко тычется носом в седло</em> Тёплый тычок добрым носом, <strong>${name}</strong>. В седле ещё уютнее — добрый дракон рядом и мурлычет теплом. ✨🛋️`,
+      room
+    );
+  }
+
+  if (cmd === '/purr' || cmd === '/мур' || cmd === '/мурлыканье') {
+    return createSystemMessage(
+      `🐉🎶 <em>тихо мурлычет</em> Тёплое глубокое мурлыканье окутывает седло, <strong>${name}</strong>. В седле спокойно и уютно — добрый дракон рядом и делится теплом. ✨🛋️`,
       room
     );
   }
